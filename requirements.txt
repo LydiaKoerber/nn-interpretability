@@ -1,4 +1,7 @@
 accelerate --upgrade
+captum
 datasets
 evaluate
+pandas
+torch
 transformers
