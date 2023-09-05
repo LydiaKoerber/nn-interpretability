@@ -1,7 +1,8 @@
-accelerate --upgrade
+accelerate #--upgrade
 captum
 datasets
 evaluate
 pandas
 torch
 transformers
+scikit-learn
