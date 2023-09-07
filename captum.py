@@ -1,10 +1,13 @@
-from transformers import pipeline
+from transformers import pipeline, DistilBertTokenizer
+from explainer import ExplainableTransformerPipeline
+
 
 model_repo = 'distilbert-20news-0'
+tok = DistilBertTokenizer.from_pretrained(model_repo)
 
-clf = pipeline(task= 'text-classification', 
-                      model= f"{model_repo}/pytorch_model.bin",
-                      tokenizer = f"{model_repo}/tokenizer.json")
+clf = pipeline(task= 'text-classification',
+                      model= f"{model_repo}",
+                      tokenizer = tok)
 
 def predict(clf, sample):
     return clf.predict(sample)
@@ -17,5 +20,9 @@ if __name__ == '__main__':
         'label': 7,
         'label_text': 'rec.autos'
         }
-    predict(clf, example['text'])
+    pred = predict(clf, example['text'])
+    print(pred)
+    device = 'cpu'
+    exp_model = ExplainableTransformerPipeline(model, clf, device)
+    exp_model.explain(example['text'])
 

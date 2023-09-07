@@ -11,9 +11,11 @@ from transformers import BertTokenizer, BertForQuestionAnswering, BertConfig
 from captum.attr import visualization as viz
 from captum.attr import LayerConductance, LayerIntegratedGradients
 
+from explainer import ExplainableTransformerPipeline
+
 # load fine-tuned model
-model_repo = 'distilbert-20news-0'
-model= f"{model_repo}/pytorch_model.bin"
+model_repo = 'bert-20news-0'
+model= f"{model_repo}/config.json"
 tokenizer = f"{model_repo}/tokenizer.json"
 
 def predict(inputs, token_type_ids=None, position_ids=None, attention_mask=None):
