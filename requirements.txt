@@ -2,7 +2,10 @@ accelerate #--upgrade
 captum
 datasets
 evaluate
+keras-bert
+keras-rectified-adam
 pandas
+scikit-learn
 torch
 transformers
-scikit-learn
+
