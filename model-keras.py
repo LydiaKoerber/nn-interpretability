@@ -4,12 +4,13 @@
 import codecs
 import tensorflow as tf
 from tqdm import tqdm
-from chardet import detect
 import numpy as np
 import keras
 from keras_radam import RAdam
 from keras import backend as K
 from keras_bert import load_trained_model_from_checkpoint, Tokenizer
+import os
+import pandas as pd
 
 # https://www.kaggle.com/code/sharmilaupadhyaya/20newsgroup-classification-using-keras-bert-in-gpu
 
@@ -41,12 +42,12 @@ with codecs.open(vocab_path, 'r', 'utf8') as reader:
         token = line.strip()
         token_dict[token] = len(token_dict)
 
-print(token_dict.items()[:20])
+print(list(token_dict.items())[:20])
 
 # DATASET
 dataset = tf.keras.utils.get_file(
     fname="20news-18828.tar.gz", 
-    origin="http://qwone.com/~jason/20Newsgroups/20news-bydate.tar.gz", 
+    origin="http://qwone.com/~jason/20Newsgroups/20news-18828.tar.gz", 
     extract=True,
 )
 
@@ -90,7 +91,7 @@ def load_data(path, labels):
 
     return [indices_train, np.zeros_like(indices_train)], np.array(sentiments_train),[indices_test, np.zeros_like(indices_test)], np.array(sentiments_test)
   
-train_path = os.path.join(os.path.dirname(dataset), '20news-bydate')
+train_path = os.path.join(os.path.dirname(dataset), '20news-18828')
 train_x, train_y, test_x, test_y = load_data(train_path, labels)
 print(pd.Series(train_y).value_counts(), pd.Series(test_y).value_counts())
 
@@ -125,3 +126,6 @@ model.fit(
 # predict & compute accuracy
 predicts = model.predict(test_x, verbose=True).argmax(axis=-1)
 print(np.sum(test_y == predicts) / test_y.shape[0])
+
+# save model
+model.save('keras-model.keras')
