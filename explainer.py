@@ -48,13 +48,14 @@ class ExplainableTransformerPipeline():
         inputs = self.generate_inputs(text)
         baseline = self.generate_baseline(sequence_len = inputs.shape[1])
         
-        lig = LayerIntegratedGradients(self.forward_func, getattr(self.__pipeline.model, 'distilbert').embeddings)
+        lig = LayerIntegratedGradients(self.forward_func, getattr(self.__pipeline.model, 'bert').embeddings)
         
         attributes, delta = lig.attribute(inputs=inputs,
                                   baselines=baseline,
                                   target = self.__pipeline.model.config.label2id[prediction[0]['label']], 
                                   return_convergence_delta = True)
         print(inputs, attributes, prediction)
+        print(inputs.shape, attributes.shape)
         self.visualize(inputs, attributes)
         
     def generate_inputs(self, text: str) -> tensor:

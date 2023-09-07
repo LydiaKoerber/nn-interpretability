@@ -1,9 +1,12 @@
-from transformers import pipeline, DistilBertTokenizer
+from transformers import pipeline, DistilBertTokenizer, BertTokenizer
 import explainer
 
 
-model_repo = 'distilbert-20news-0'
-tok = DistilBertTokenizer.from_pretrained(model_repo)
+model_repo = 'bert-20news-0'
+if model_repo.startswith('distil'):
+    tok = DistilBertTokenizer.from_pretrained(model_repo)
+else:
+    tok = BertTokenizer.from_pretrained(model_repo)
 
 clf = pipeline(task= 'text-classification',
                       model= f"{model_repo}",
