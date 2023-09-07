@@ -2,7 +2,7 @@ import torch
 import pandas as pd
 
 from torch import tensor 
-from transformers.tokenization_distilbert import DistilBertTokenizer
+from transformers import DistilBertTokenizer
 from transformers.pipelines import TextClassificationPipeline
 from captum.attr import LayerIntegratedGradients, TokenReferenceBase
 
@@ -11,8 +11,7 @@ import matplotlib.pyplot as plt
 class ExplainableTransformerPipeline():
     """Wrapper for Captum framework usage with Huggingface Pipeline"""
     
-    def __init__(self, name:str, pipeline: TextClassificationPipeline, device: str):
-        self.__name = name
+    def __init__(self, pipeline: TextClassificationPipeline, device: str):
         self.__pipeline = pipeline
         self.__device = device
     
@@ -36,7 +35,9 @@ class ExplainableTransformerPipeline():
         a = pd.Series(attr.numpy()[0], 
                          index = self.__pipeline.tokenizer.convert_ids_to_tokens(inputs.detach().numpy()[0]))
         
-        plt.show(a.plot.barh(figsize=(10,20)))
+        a.plot.barh(figsize=(10,20))
+        plt.show()
+        plt.savefig('viz.png', bbox_inches='tight')
                       
     def explain(self, text: str):
         """
@@ -53,8 +54,8 @@ class ExplainableTransformerPipeline():
                                   baselines=baseline,
                                   target = self.__pipeline.model.config.label2id[prediction[0]['label']], 
                                   return_convergence_delta = True)
-        
-        self.visualize(inputs, attributes, prediction)
+        print(inputs, attributes, prediction)
+        self.visualize(inputs, attributes)
         
     def generate_inputs(self, text: str) -> tensor:
         """
