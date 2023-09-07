@@ -6,6 +6,7 @@ keras-bert
 keras-rectified-adam
 pandas
 scikit-learn
+tensorflow
 torch
 transformers
 
