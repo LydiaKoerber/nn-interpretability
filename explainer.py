@@ -4,16 +4,18 @@ import pandas as pd
 from torch import tensor 
 from transformers import DistilBertTokenizer
 from transformers.pipelines import TextClassificationPipeline
-from captum.attr import LayerIntegratedGradients, TokenReferenceBase
+from captum.attr import IntegratedGradients, LayerIntegratedGradients, TokenReferenceBase
 
 import matplotlib.pyplot as plt
 
 class ExplainableTransformerPipeline():
     """Wrapper for Captum framework usage with Huggingface Pipeline"""
     
-    def __init__(self, pipeline: TextClassificationPipeline, device: str):
+    def __init__(self, pipeline: TextClassificationPipeline, device: str, output_path: str, algorithms: list):
         self.__pipeline = pipeline
         self.__device = device
+        self.output_path = output_path
+        self.algorithms = algorithms
     
     def forward_func(self, inputs: tensor, position = 0):
         """
@@ -23,7 +25,7 @@ class ExplainableTransformerPipeline():
                        attention_mask=torch.ones_like(inputs))
         return pred[position]
         
-    def visualize(self, inputs: list, attributes: list):
+    def visualize(self, inputs: list, attributes: list, index: int=0, output: bool=False):
         """
             Visualization method.
             Takes list of inputs and correspondent attributs for them to visualize in a barplot
@@ -37,9 +39,10 @@ class ExplainableTransformerPipeline():
         
         a.plot.barh(figsize=(10,20))
         plt.show()
-        plt.savefig('viz.png', bbox_inches='tight')
+        if output:
+            plt.savefig(f'{self.output_path}/viz-{index}.png', bbox_inches='tight')
                       
-    def explain(self, text: str):
+    def explain(self, text: str, visualize: bool=False, index: int=0):
         """
             Main entry method. Passes text through series of transformations and through the model. 
             Calls visualization method.
@@ -48,15 +51,26 @@ class ExplainableTransformerPipeline():
         inputs = self.generate_inputs(text)
         baseline = self.generate_baseline(sequence_len = inputs.shape[1])
         
-        lig = LayerIntegratedGradients(self.forward_func, getattr(self.__pipeline.model, 'bert').embeddings)
-        
-        attributes, delta = lig.attribute(inputs=inputs,
-                                  baselines=baseline,
-                                  target = self.__pipeline.model.config.label2id[prediction[0]['label']], 
-                                  return_convergence_delta = True)
-        print(inputs, attributes, prediction)
-        print(inputs.shape, attributes.shape)
-        self.visualize(inputs, attributes)
+        if 'lig' in algorithms:
+            lig = LayerIntegratedGradients(self.forward_func, getattr(self.__pipeline.model, 'bert').embeddings)
+
+            attributes, delta = lig.attribute(inputs=inputs,
+                                    baselines=baseline,
+                                    target = self.__pipeline.model.config.label2id[prediction[0]['label']], 
+                                    return_convergence_delta = True)
+            print(inputs, attributes, prediction)
+            print(inputs.shape, attributes.shape, delta)
+            if visualize:
+                self.visualize(inputs, attributes, i)
+
+        if 'ig' in algorithms:
+            ig = IntegratedGradients(self.forward_func)
+            attributes, delta = ig.attribute(inputs=inputs,
+                                    baselines=baseline,
+                                    target = self.__pipeline.model.config.label2id[prediction[0]['label']], 
+                                    return_convergence_delta = True)
+            print(inputs, attributes, prediction)
+            print(inputs.shape, attributes.shape, delta)
         
     def generate_inputs(self, text: str) -> tensor:
         """

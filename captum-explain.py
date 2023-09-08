@@ -1,20 +1,18 @@
-from transformers import pipeline, DistilBertTokenizer, BertTokenizer
+from transformers import pipeline, DistilBertTokenizer
+from datasets import load_dataset
 import explainer
 
 
-model_repo = 'bert-20news-0'
-if model_repo.startswith('distil'):
-    tok = DistilBertTokenizer.from_pretrained(model_repo)
-else:
-    tok = BertTokenizer.from_pretrained(model_repo)
+model_repo = 'distilbert-20news-0'
+tok = DistilBertTokenizer.from_pretrained(model_repo)
 
 clf = pipeline(task= 'text-classification',
                       model= f"{model_repo}",
                       tokenizer = tok)
 
-def predict(clf, sample):
-    return clf.predict(sample)
-
+def explain_all(test_data, exp_model):
+    for i, d in enumerate(data):
+        exp_model.explain(d['text'])
 
 if __name__ == '__main__':
     # data["test"][0]
@@ -23,9 +21,9 @@ if __name__ == '__main__':
         'label': 7,
         'label_text': 'rec.autos'
         }
-    pred = predict(clf, example['text'])
-    print(pred)
     device = 'cpu'
-    exp_model = explainer.ExplainableTransformerPipeline(clf, device)
+    exp_model = explainer.ExplainableTransformerPipeline(clf, device, 'output', algorithms=['lig', 'ig'])
     exp_model.explain(example['text'])
+    # data = load_dataset("SetFit/20_newsgroups")
+    # explain_all(data['test'], exp_model)
 
