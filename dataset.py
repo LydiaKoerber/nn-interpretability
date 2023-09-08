@@ -2,7 +2,7 @@ from datasets import load_dataset
 import numpy as np
 import pandas as pd
 
-from ._stop_words import ENGLISH_STOP_WORDS
+from _stop_words import ENGLISH_STOP_WORDS
 
 
 def extract_dataset_statistics(split, path, exclude_stopwords=False):
