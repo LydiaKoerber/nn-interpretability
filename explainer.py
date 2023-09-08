@@ -4,7 +4,13 @@ import pandas as pd
 from torch import tensor 
 from transformers import DistilBertTokenizer, BertTokenizer
 from transformers.pipelines import TextClassificationPipeline
-from captum.attr import IntegratedGradients, LayerIntegratedGradients, TokenReferenceBase
+from captum.attr import (
+    InternalInfluence,
+    LayerConductance,
+    LayerIntegratedGradients,
+    LRP,
+    TokenReferenceBase
+)
 
 import matplotlib.pyplot as plt
 
@@ -57,23 +63,18 @@ class ExplainableTransformerPipeline():
 
             attributes, delta = lig.attribute(inputs=inputs,
                                     baselines=baseline,
-                                    target = self.__pipeline.model.config.label2id[prediction[0]['label']], 
+                                    target=self.__pipeline.model.config.label2id[prediction[0]['label']], 
                                     return_convergence_delta = True)
-            print(inputs, attributes, prediction)
-            print(inputs.shape, attributes.shape, delta)
             if visualize:
                 self.visualize(inputs, attributes, i)
 
-        if 'ig' in self.algorithms:
-            print(prediction)
-            print(prediction[0]['label'], type(self.__pipeline.model.config.label2id[prediction[0]['label']]))
-            ig = IntegratedGradients(self.forward_func, getattr(self.__pipeline.model, self.model).embeddings)
-            attributes, delta = ig.attribute(inputs=inputs,
-                                    baselines=baseline,
-                                    target = torch.tensor(self.__pipeline.model.config.label2id[prediction[0]['label']]),
-                                    return_convergence_delta = True)
-            print(inputs, attributes, prediction)
-            print(inputs.shape, attributes.shape, delta)
+        if 'lrp' in self.algorithms:
+            pass
+            lrp = LRP()
+            attribution = lrp.attribute(inputs, target=self.__pipeline.model.config.label2id[prediction[0]['label']])
+
+        if 'lc' in self.algorithms:
+            pass
         
     def generate_inputs(self, text: str) -> tensor:
         """

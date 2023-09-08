@@ -17,6 +17,7 @@ def setup_distilbert():
     clf_dist = pipeline(task= 'text-classification',
                         model= f"{model_repo_dist}",
                         tokenizer = tok_dist)
+    return clf_dist
 
 def explain_all(test_data, exp_model):
     for i, d in enumerate(data):
@@ -31,8 +32,8 @@ if __name__ == '__main__':
         }
     device = 'cpu'
     clf = setup_bert()
-    exp_model_bert = explainer.ExplainableTransformerPipeline(clf, device, 'output', algorithms=['lig', 'ig'], model='bert')
+    exp_model_bert = explainer.ExplainableTransformerPipeline(clf, device, 'output', algorithms=['lig', 'lrp'], model='bert')
     exp_model_bert.explain(example['text'])
     # data = load_dataset("SetFit/20_newsgroups")
-    # explain_all(data['test'], exp_model)
+    # explain_all(data['test'], exp_model_bert)
 
