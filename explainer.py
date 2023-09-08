@@ -65,8 +65,15 @@ class ExplainableTransformerPipeline():
                                     baselines=baseline,
                                     target=self.__pipeline.model.config.label2id[prediction[0]['label']], 
                                     return_convergence_delta = True)
+            
+            attr_sum = attributes.sum(-1) 
+            attr = attr_sum / torch.norm(attr_sum) 
+            a = pd.Series(attr.numpy()[0], 
+                            index = self.__pipeline.tokenizer.convert_ids_to_tokens(inputs.detach().numpy()[0]))
             if visualize:
                 self.visualize(inputs, attributes, i)
+            print(a)
+            return a
 
         if 'lrp' in self.algorithms:
             pass
