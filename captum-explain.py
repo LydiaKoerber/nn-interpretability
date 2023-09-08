@@ -23,13 +23,16 @@ def setup_distilbert():
 def explain_all(test_data, exp_model):
     df = pd.DataFrame(columns=['tokens', 'attributions'])
     for i, d in enumerate(test_data):
-        print(i)
-        a = exp_model.explain(d['text'])
-        new_row = pd.DataFrame({
-            'tokens': [a.index.tolist()],
-            'attributions': [a.tolist()]
-        })
-        df = df.append(new_row, ignore_index=True)
+        try:
+            a = exp_model.explain(d['text'])
+            new_row = pd.DataFrame({
+                'tokens': [a.index.tolist()],
+                'attributions': [a.tolist()]
+            })
+            df = df.append(new_row, ignore_index=True)
+        except:
+            print(i)
+            df = df.append([None, None], ignore_index=True)
     df.to_csv(f'outputs/{exp_model.model}_attributions.csv')
 
 if __name__ == '__main__':
