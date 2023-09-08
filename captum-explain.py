@@ -22,7 +22,8 @@ def setup_distilbert():
 
 def explain_all(test_data, exp_model):
     df = pd.DataFrame(columns=['tokens', 'attributions'])
-    for i, d in enumerate(data):
+    for i, d in enumerate(test_data):
+        print(i)
         a = exp_model.explain(d['text'])
         new_row = pd.DataFrame({
             'tokens': [a.index.tolist()],
