@@ -2,7 +2,7 @@ import torch
 import pandas as pd
 
 from torch import tensor 
-from transformers import DistilBertTokenizer
+from transformers import DistilBertTokenizer, BertTokenizer
 from transformers.pipelines import TextClassificationPipeline
 from captum.attr import IntegratedGradients, LayerIntegratedGradients, TokenReferenceBase
 
@@ -11,11 +11,12 @@ import matplotlib.pyplot as plt
 class ExplainableTransformerPipeline():
     """Wrapper for Captum framework usage with Huggingface Pipeline"""
     
-    def __init__(self, pipeline: TextClassificationPipeline, device: str, output_path: str, algorithms: list):
+    def __init__(self, pipeline: TextClassificationPipeline, device: str, output_path: str, algorithms: list, model: str):
         self.__pipeline = pipeline
         self.__device = device
         self.output_path = output_path
         self.algorithms = algorithms
+        self.model = model
     
     def forward_func(self, inputs: tensor, position = 0):
         """
@@ -51,8 +52,8 @@ class ExplainableTransformerPipeline():
         inputs = self.generate_inputs(text)
         baseline = self.generate_baseline(sequence_len = inputs.shape[1])
         
-        if 'lig' in algorithms:
-            lig = LayerIntegratedGradients(self.forward_func, getattr(self.__pipeline.model, 'bert').embeddings)
+        if 'lig' in self.algorithms:
+            lig = LayerIntegratedGradients(self.forward_func, getattr(self.__pipeline.model, self.model).embeddings)
 
             attributes, delta = lig.attribute(inputs=inputs,
                                     baselines=baseline,
@@ -63,7 +64,7 @@ class ExplainableTransformerPipeline():
             if visualize:
                 self.visualize(inputs, attributes, i)
 
-        if 'ig' in algorithms:
+        if 'ig' in self.algorithms:
             ig = IntegratedGradients(self.forward_func)
             attributes, delta = ig.attribute(inputs=inputs,
                                     baselines=baseline,
