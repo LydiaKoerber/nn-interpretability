@@ -1,5 +1,6 @@
 from transformers import pipeline, DistilBertTokenizer, BertTokenizer
 from datasets import load_dataset
+import pandas as pd
 import explainer
 
 
@@ -20,8 +21,15 @@ def setup_distilbert():
     return clf_dist
 
 def explain_all(test_data, exp_model):
+    df = pd.DataFrame(columns=['tokens', 'attributions'])
     for i, d in enumerate(data):
-        exp_model.explain(d['text'])
+        a = exp_model.explain(d['text'])
+        new_row = pd.DataFrame({
+            'tokens': [a.index.tolist()],
+            'attributions': [a.tolist()]
+        })
+        df = df.append(new_row, ignore_index=True)
+    df.to_csv(f'outputs/{exp_model.model}_attributions.csv')
 
 if __name__ == '__main__':
     # data["test"][0]
@@ -33,7 +41,7 @@ if __name__ == '__main__':
     device = 'cpu'
     clf = setup_bert()
     exp_model_bert = explainer.ExplainableTransformerPipeline(clf, device, 'output', algorithms=['lig', 'lrp'], model='bert')
-    exp_model_bert.explain(example['text'])
-    # data = load_dataset("SetFit/20_newsgroups")
-    # explain_all(data['test'], exp_model_bert)
+    #exp_model_bert.explain(example['text'])
+    data = load_dataset("SetFit/20_newsgroups")
+    explain_all(data['test'], exp_model_bert)
 
