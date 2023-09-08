@@ -9,6 +9,7 @@ def setup_bert():
     clf = pipeline(task= 'text-classification',
                         model= f"{model_repo}",
                         tokenizer = tok)
+    return clf
 
 def setup_distilbert():
     model_repo_dist = 'distilbert-20news-0'
@@ -29,8 +30,8 @@ if __name__ == '__main__':
         'label_text': 'rec.autos'
         }
     device = 'cpu'
-    setup_bert()
-    exp_model_bert = explainer.ExplainableTransformerPipeline(clf, device, 'output', algorithms=['lig', 'ig'], 'bert')
+    clf = setup_bert()
+    exp_model_bert = explainer.ExplainableTransformerPipeline(clf, device, 'output', algorithms=['lig', 'ig'], model='bert')
     exp_model_bert.explain(example['text'])
     # data = load_dataset("SetFit/20_newsgroups")
     # explain_all(data['test'], exp_model)

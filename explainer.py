@@ -65,10 +65,12 @@ class ExplainableTransformerPipeline():
                 self.visualize(inputs, attributes, i)
 
         if 'ig' in self.algorithms:
-            ig = IntegratedGradients(self.forward_func)
+            print(prediction)
+            print(prediction[0]['label'], type(self.__pipeline.model.config.label2id[prediction[0]['label']]))
+            ig = IntegratedGradients(self.forward_func, getattr(self.__pipeline.model, self.model).embeddings)
             attributes, delta = ig.attribute(inputs=inputs,
                                     baselines=baseline,
-                                    target = self.__pipeline.model.config.label2id[prediction[0]['label']], 
+                                    target = torch.tensor(self.__pipeline.model.config.label2id[prediction[0]['label']]),
                                     return_convergence_delta = True)
             print(inputs, attributes, prediction)
             print(inputs.shape, attributes.shape, delta)
