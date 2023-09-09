@@ -7,6 +7,7 @@ from _stop_words import ENGLISH_STOP_WORDS
 
 def extract_dataset_statistics(split, path, exclude_stopwords=False):
     df = pd.DataFrame(split)
+    df = df.loc[:, df.columns != 'text']
     unigram_counts = {}
     bigram_counts = {}
     for d in df:
