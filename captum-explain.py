@@ -21,27 +21,25 @@ def setup_distilbert():
     return clf_dist
 
 def explain_all(test_data, exp_model, subsplit_size=500):
-    for j in range(0, len(test_data), subsplit_size):
-        print(f'split {j}')
-        df = pd.DataFrame(columns=['label_pred', 'score', 'tokens', 'attributions'])
-        subsplit = test_data[j:j + subsplit_size]
-        print(subsplit)
-        for i, d in enumerate(subsplit):
-            print(d)
-            try:
-                a, pred = exp_model.explain(d['text'])
-                new_row = pd.DataFrame({
-                    'label_pred': pred[0]['label'],
-                    'score': pred[0]['score'],
-                    'tokens': [a.index.tolist()],
-                    'attributions': [a.tolist()]
-                })
-                df = df.append(new_row, ignore_index=True)
-            except Exception as e:
-                print(i, e)
-                df = df.append([None, None, None, None], ignore_index=True)
-        return
-        df.to_csv(f'outputs/{exp_model.model}_attributions_{j}.csv')
+    df = pd.DataFrame(columns=['label_pred', 'score', 'tokens', 'attributions'])
+    for i, d in enumerate(test_data):
+        try:
+            a, pred = exp_model.explain(d['text'])
+            new_row = pd.DataFrame({
+                'label_pred': pred[0]['label'],
+                'score': pred[0]['score'],
+                'tokens': [a.index.tolist()],
+                'attributions': [a.tolist()]
+            })
+            df = df.append(new_row, ignore_index=True)
+        except Exception as e:
+            print(i, e)
+            df = df.append([None, None, None, None], ignore_index=True)
+        if i % subsplit_size == 0:  # split to dataframe
+            df.to_csv(f'outputs/{exp_model.model}_attributions_{i/subsplit_size}.csv')
+            df = pd.DataFrame(columns=['label_pred', 'score', 'tokens', 'attributions'])
+
+    
 
 if __name__ == '__main__':
     # data["test"][0]
@@ -54,6 +52,6 @@ if __name__ == '__main__':
     clf = setup_bert()
     exp_model_bert = explainer.ExplainableTransformerPipeline(clf, device, 'output', algorithms=['lig', 'lrp'], model='bert')
     #exp_model_bert.explain(example['text'])
-    data = load_dataset("SetFit/20_newsgroups")
-    explain_all(data['test'], exp_model_bert)
+    data_test = load_dataset("SetFit/20_newsgroups", split='test')
+    explain_all(data_test, exp_model_bert)
 
