@@ -35,8 +35,8 @@ def explain_all(test_data, exp_model, subsplit_size=500):
                     'attributions': [a.tolist()]
                 })
                 df = df.append(new_row, ignore_index=True)
-            except:
-                print(i)
+            except Exception as e:
+                print(i, e)
                 df = df.append([None, None, None, None], ignore_index=True)
         df.to_csv(f'outputs/{exp_model.model}_attributions_{j}.csv')
 

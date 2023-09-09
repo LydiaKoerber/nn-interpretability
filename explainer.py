@@ -71,7 +71,7 @@ class ExplainableTransformerPipeline():
             a = pd.Series(attr.numpy()[0], 
                             index = self.__pipeline.tokenizer.convert_ids_to_tokens(inputs.detach().numpy()[0]))
             if visualize:
-                self.visualize(inputs, attributes, i)
+                self.visualize(inputs, attributes, index)
             return a, prediction
 
         if 'lrp' in self.algorithms:
