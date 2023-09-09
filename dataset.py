@@ -6,13 +6,13 @@ from _stop_words import ENGLISH_STOP_WORDS
 
 
 def extract_dataset_statistics(split, path, exclude_stopwords=False):
-    df = split.to_pandas()
+    df = pd.DataFrame(split)
     unigram_counts = {}
     bigram_counts = {}
     for d in df:
         pass
     # df_bylabels = df.group_by()
-    df.to_csv(f'{path}.csv')
+    df.to_csv(f'{path}.csv', encoding='utf-8')
 
 if __name__ == '__main__':
     data = load_dataset("SetFit/20_newsgroups")
