@@ -21,9 +21,9 @@ def setup_distilbert():
     return clf_dist
 
 def explain_all(test_data, exp_model, subsplit_size=500):
-    df = pd.DataFrame(columns=['tokens', 'attributions'])
     for j in range(0, len(test_data), subsplit_size):
         print(f'split {j}')
+        df = pd.DataFrame(columns=['label_pred', 'score', 'tokens', 'attributions'])
         subsplit = test_data[j:j + subsplit_size]
         for i, d in enumerate(subsplit):
             try:
