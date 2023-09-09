@@ -25,7 +25,7 @@ def explain_all(test_data, exp_model, subsplit_size=500):
         print(f'split {j}')
         df = pd.DataFrame(columns=['label_pred', 'score', 'tokens', 'attributions'])
         subsplit = test_data[j:j + subsplit_size]
-        print(type(subsplit))
+        print(subsplit)
         for i, d in enumerate(subsplit):
             print(d)
             try:
@@ -40,6 +40,7 @@ def explain_all(test_data, exp_model, subsplit_size=500):
             except Exception as e:
                 print(i, e)
                 df = df.append([None, None, None, None], ignore_index=True)
+        return
         df.to_csv(f'outputs/{exp_model.model}_attributions_{j}.csv')
 
 if __name__ == '__main__':
