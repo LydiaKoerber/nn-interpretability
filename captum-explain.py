@@ -27,8 +27,8 @@ def explain_all(test_data, exp_model, subsplit_size=500):
         subsplit = test_data[j:j + subsplit_size]
         print(type(subsplit))
         for i, d in enumerate(subsplit):
-           print(d)
-           try:
+            print(d)
+            try:
                 a, pred = exp_model.explain(d['text'])
                 new_row = pd.DataFrame({
                     'label_pred': pred[0]['label'],
@@ -37,10 +37,10 @@ def explain_all(test_data, exp_model, subsplit_size=500):
                     'attributions': [a.tolist()]
                 })
                 df = df.append(new_row, ignore_index=True)
-            #except Exception as e:
-                #print(i, e)
-                #df = df.append([None, None, None, None], ignore_index=True)
-         df.to_csv(f'outputs/{exp_model.model}_attributions_{j}.csv')
+            except Exception as e:
+                print(i, e)
+                df = df.append([None, None, None, None], ignore_index=True)
+        df.to_csv(f'outputs/{exp_model.model}_attributions_{j}.csv')
 
 if __name__ == '__main__':
     # data["test"][0]
