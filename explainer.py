@@ -72,7 +72,7 @@ class ExplainableTransformerPipeline():
                             index = self.__pipeline.tokenizer.convert_ids_to_tokens(inputs.detach().numpy()[0]))
             if visualize:
                 self.visualize(inputs, attributes, i)
-            return a
+            return a, prediction
 
         if 'lrp' in self.algorithms:
             pass
