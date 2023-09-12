@@ -35,7 +35,7 @@ def explain_all(test_data, exp_model, subsplit_size=500):
         except Exception as e:
             print(i, e)
             df = df.append([None, None, None, None], ignore_index=True)
-        if i % subsplit_size == 0:  # split to dataframe
+        if i-1 % subsplit_size == 0:  # split to dataframe
             df.to_csv(f'outputs/{exp_model.model}_attributions_{i/subsplit_size}.csv')
             df = pd.DataFrame(columns=['label_pred', 'score', 'tokens', 'attributions'])
 
