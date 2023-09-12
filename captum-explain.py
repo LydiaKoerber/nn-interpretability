@@ -46,7 +46,7 @@ if __name__ == '__main__':
         'label_text': 'talk.politics.mideast'
         }
     device = 'cpu'
-    clf = setup('models/distilbert-2')
+    clf = setup('models/distilbert-2/')
     exp_model_bert = explainer.ExplainableTransformerPipeline(clf, device, 'output', algorithms=['lig', 'lrp'], model='distilbert')
     print(exp_model_bert.explain(example['text']))
     print(exp_model_bert.explain(example2['text']))
