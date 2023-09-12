@@ -1,7 +1,9 @@
 from datasets import Dataset, load_dataset
 import evaluate
 import numpy as np
+import pandas as pd
 from sklearn.datasets import fetch_20newsgroups
+import tensorflow as tf
 from tensorflow.keras.losses import SparseCategoricalCrossentropy
 import time
 from transformers import (
@@ -38,6 +40,7 @@ train_dsd['test'] = test_ds
 model_checkpoint = "distilbert-base-uncased"
 tokenizer = AutoTokenizer.from_pretrained(model_checkpoint)
 
+MAX_LEN = 256
 def preprocess_function(examples):
     #return tokenizer(examples['data'], truncation=True, padding=True, max_length=MAX_LEN)
     return tokenizer(examples['data'], truncation=True, max_length=MAX_LEN)
