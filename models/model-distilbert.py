@@ -16,12 +16,24 @@ from transformers import (
     Trainer,
 )
 
-run = 1
+run = 2
 
 # load dataset from sklearn
 # dicts of lists of strings, data and target_names
-train = fetch_20newsgroups(subset='train')
-test = fetch_20newsgroups(subset='test')
+train = fetch_20newsgroups(
+    subset="train",
+    shuffle=True,
+    random_state=42,
+    remove=("headers", "footers", "quotes"),
+)
+
+test = fetch_20newsgroups(
+    subset="test",
+    shuffle=True,
+    random_state=42,
+    remove=("headers", "footers", "quotes"),
+)
+
 train.pop("target_names")
 train_df = pd.DataFrame.from_dict(train)[["data","target"]]
 test.pop("target_names")
