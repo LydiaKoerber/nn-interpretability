@@ -1,11 +1,17 @@
-from transformers import pipeline, AutoTokenizer
+from transformers import pipeline, AutoTokenizer, BertTokenizer, DistilBertTokenizer
 from datasets import load_dataset
 import pandas as pd
 import explainer
 
 
 def setup(model_repo):
-    tok = AutoTokenizer.from_pretrained(model_repo)
+    try:
+        tok = AutoTokenizer.from_pretrained(model_repo)
+    except error as e:
+        if 'distilbert' in model_repo:
+            tok = DistilBertTokenizer()
+        else:
+            tok = BertTokenizer()
     clf = pipeline(task='text-classification',
                         model= model_repo,
                         tokenizer = tok)
@@ -24,18 +30,21 @@ def explain_all(test_data, exp_model, subsplit_size=500):
                 'attributions': [a.tolist()]
             })
             df = df.append(new_row, ignore_index=True)
+            none_row = False
         except Exception as e:
             print(i, e)
-            df = df.append([None, None, None, None], ignore_index=True)
-        if i-1 % subsplit_size == 0:  # split to dataframe
-            df.to_csv(f'outputs/{exp_model.model}_attributions_{i/subsplit_size}.csv')
+            # avoid several rows for one index if several error messages for one instance
+            if not none_row:
+                df = df.append([None, None, None, None], ignore_index=True)
+                none_row = True
+        if i-1 % subsplit_size == 0:  # export split to dataframe
+            df.to_csv(f'outputs/{exp_model.model}_attributions_{int(i/subsplit_size)}.csv')
             df = pd.DataFrame(columns=['label_pred', 'score', 'tokens', 'attributions'])
 
-    
+
 
 if __name__ == '__main__':
-    # data["test"][0]
-    example = {
+    example1 = {
         'text': 'I am a little confused on all of the models of the 88-89 bonnevilles.\nI have heard of the LE SE LSE SSE SSEI. Could someone tell me the\ndifferences are far as features or performance. I am also curious to\nknow what the book value is for prefereably the 89 model. And how much\nless than book value can you usually get them for. In other words how\nmuch are they in demand this time of year. I have heard that the mid-spring\nearly summer is the best time to buy.',
         'label': 7,
         'label_text': 'rec.autos'
@@ -48,7 +57,7 @@ if __name__ == '__main__':
     device = 'cpu'
     clf = setup('models/distilbert-2/')
     exp_model_bert = explainer.ExplainableTransformerPipeline(clf, device, 'output', algorithms=['lig', 'lrp'], model='distilbert')
-    print(exp_model_bert.explain(example['text']))
+    print(exp_model_bert.explain(example1['text']))
     print(exp_model_bert.explain(example2['text']))
     #data_test = load_dataset("SetFit/20_newsgroups", split='test')
     #explain_all(data_test, exp_model_bert)

@@ -122,4 +122,5 @@ print(f"Elapsed time: {end_time-start_time:.4f} seconds")
 bert_loss, bert_acc = my_bert.evaluate(tf_test_set)
 print(bert_loss, bert_acc)
 my_bert.save_pretrained(f"distilbert-{run}")
-
+# save tokenizer
+tokenizer.save_pretrained(f"distilbert-{run}")
