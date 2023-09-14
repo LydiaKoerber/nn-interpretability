@@ -4,6 +4,7 @@ import numpy as np
 from transformers import (
     AutoModelForSequenceClassification,
     AutoTokenizer,
+    BartForSequenceClassification,
     DataCollatorWithPadding,
     TrainingArguments,
     Trainer,
@@ -19,8 +20,10 @@ for d in data["test"]:
     id2label[d['label']] = d['label_text']
     label2id[d['label_text']] = d['label']
 
+
+# valhalla/bart-large-sst2
 # preprocessing
-tokenizer = AutoTokenizer.from_pretrained("distilbert-base-uncased")
+tokenizer = AutoTokenizer.from_pretrained("valhalla/bart-large-sst2")
 
 def preprocess_function(examples):
     return tokenizer(examples["text"], truncation=False)
@@ -37,14 +40,14 @@ def compute_metrics(eval_pred, metric=accuracy):
     return metric.compute(predictions=predictions, references=labels)
 
 # define model, start training
-model = AutoModelForSequenceClassification.from_pretrained(
-    "bert-base-uncased",
+model = BartForSequenceClassification.from_pretrained(
+    "valhalla/bart-large-sst2",
     num_labels=20,
     id2label=id2label,
     label2id=label2id)
 
 training_args = TrainingArguments(
-    output_dir="distilbert-20news-3",
+    output_dir="bart-0",
     learning_rate=2e-5,
     per_device_train_batch_size=16,
     per_device_eval_batch_size=16,
