@@ -7,9 +7,9 @@ import explainer
 def setup(model_repo):
     try:
         tok = AutoTokenizer.from_pretrained(model_repo)
-    except error as e:
+    except Exception as e:
         if 'distilbert' in model_repo:
-            tok = DistilBertTokenizer()
+            tok = DistilBertTokenizer('models/distilbert-20news-0/vocab.txt')
         else:
             tok = BertTokenizer()
     clf = pipeline(task='text-classification',
