@@ -4,15 +4,10 @@ import pandas as pd
 from torch import tensor 
 from transformers import DistilBertTokenizer, BertTokenizer
 from transformers.pipelines import TextClassificationPipeline
-from captum.attr import (
-    InternalInfluence,
-    LayerConductance,
-    LayerIntegratedGradients,
-    LRP,
-    TokenReferenceBase
-)
+from captum.attr import LayerIntegratedGradients
 
 import matplotlib.pyplot as plt
+
 
 class ExplainableTransformerPipeline():
     """Wrapper for Captum framework usage with Huggingface Pipeline"""
@@ -35,10 +30,7 @@ class ExplainableTransformerPipeline():
         return pred[position]
         
     def visualize(self, inputs: list, attributes: list, index: int=0, output: bool=False):
-        """
-            Visualization method.
-            Takes list of inputs and correspondent attributs for them to visualize in a barplot
-        """
+        """Visualize inputs and attriutions in a barplot"""
         attr_sum = attributes.sum(-1)
         attr = attr_sum / torch.norm(attr_sum)
         a = pd.Series(attr.numpy()[0], 
@@ -50,10 +42,7 @@ class ExplainableTransformerPipeline():
             plt.savefig(f'{self.output_path}/viz-{index}.png', bbox_inches='tight')
                       
     def explain(self, text: str, visualize: bool=False, index: int=0) -> tuple:
-        """
-            Main entry method. Passes text through series of transformations and through the model. 
-            Calls visualization method.
-        """
+        """pass a text through a model and calculate attributions"""
         prediction = self.__pipeline.predict(text)
         inputs = self.generate_inputs(text)
         baseline = self.generate_baseline(sequence_len=inputs.shape[1])
@@ -67,7 +56,7 @@ class ExplainableTransformerPipeline():
                                     baselines=baseline,
                                     target=self.__pipeline.model.config.label2id[prediction[0]['label']], 
                                     return_convergence_delta=True)
-            
+
             attr_sum = attributes.sum(-1) 
             attr = attr_sum / torch.norm(attr_sum) 
             a = pd.Series(attr.numpy()[0], 
@@ -76,19 +65,11 @@ class ExplainableTransformerPipeline():
                 self.visualize(inputs, attributes, index)
             return a, prediction
 
-        if 'lrp' in self.algorithms:
-            pass
-            lrp = LRP()
-            attribution = lrp.attribute(inputs, target=self.__pipeline.model.config.label2id[prediction[0]['label']])
-
-        if 'lc' in self.algorithms:
-            pass
-        
     def generate_inputs(self, text: str) -> tensor:
         """generate input IDs as list of torch tensors"""
         return torch.tensor(self.__pipeline.tokenizer.encode(text, add_special_tokens=False),
                             device = self.__device).unsqueeze(0)
-    
+
     def generate_baseline(self, sequence_len: int) -> tensor:
         """generate a baseline vector of PAD token IDs"""        
         return torch.tensor([self.__pipeline.tokenizer.cls_token_id] +

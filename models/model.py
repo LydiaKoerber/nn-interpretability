@@ -23,7 +23,7 @@ for d in data["test"]:
 tokenizer = AutoTokenizer.from_pretrained("distilbert-base-uncased")
 
 def preprocess_function(examples):
-    return tokenizer(examples["text"], truncation=False)
+    return tokenizer(examples["text"], truncation=True)
 
 tokenized_data = data.map(preprocess_function, batched=True)
 data_collator = DataCollatorWithPadding(tokenizer=tokenizer)
@@ -38,7 +38,7 @@ def compute_metrics(eval_pred, metric=accuracy):
 
 # define model, start training
 model = AutoModelForSequenceClassification.from_pretrained(
-    "bert-base-uncased",
+    "distilbert-base-uncased",
     num_labels=20,
     id2label=id2label,
     label2id=label2id)
@@ -48,7 +48,7 @@ training_args = TrainingArguments(
     learning_rate=2e-5,
     per_device_train_batch_size=16,
     per_device_eval_batch_size=16,
-    num_train_epochs=2,
+    num_train_epochs=5,
     weight_decay=0.01,
     evaluation_strategy="epoch",
     save_strategy="epoch",

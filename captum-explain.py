@@ -11,7 +11,7 @@ def setup(model_repo):
         if 'distilbert' in model_repo:
             tok = DistilBertTokenizer('models/distilbert-20news-0/vocab.txt')
         else:
-            tok = BertTokenizer()
+            tok = BertTokenizer('models/bert-20news-0/vocab.txt')
     clf = pipeline(task='text-classification',
                         model= model_repo,
                         tokenizer = tok)
