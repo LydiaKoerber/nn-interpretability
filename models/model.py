@@ -44,7 +44,7 @@ model = AutoModelForSequenceClassification.from_pretrained(
     label2id=label2id)
 
 training_args = TrainingArguments(
-    output_dir="distilbert-20news-3",
+    output_dir="distilbert-4",
     learning_rate=2e-5,
     per_device_train_batch_size=16,
     per_device_eval_batch_size=16,
