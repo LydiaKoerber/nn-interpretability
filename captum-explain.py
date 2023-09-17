@@ -21,6 +21,8 @@ def setup(model_repo):
 def explain_all(test_data, exp_model, subsplit_size=500):
     df = pd.DataFrame(columns=['label_pred', 'score', 'tokens', 'attributions'])
     for i, d in test_data.iterrows():
+        if i < 7000:
+            continue
         try:
             a, pred = exp_model.explain(d['truncated'])
             new_row = pd.DataFrame({
@@ -40,6 +42,8 @@ def explain_all(test_data, exp_model, subsplit_size=500):
         if (i+1) % subsplit_size == 0:  # export split to dataframe
             df.to_csv(f'outputs/{exp_model.model}/{exp_model.model}_attributions_{int(i/subsplit_size)}.csv')
             df = pd.DataFrame(columns=['label_pred', 'score', 'tokens', 'attributions'])
+    df.to_csv(f'outputs/{exp_model.model}/{exp_model.model}_attributions_{int(i/subsplit_size)}.csv')
+
 
 def demo():
     example1 = {
