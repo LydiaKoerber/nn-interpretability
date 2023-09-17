@@ -9,20 +9,20 @@ def setup(model_repo):
         tok = AutoTokenizer.from_pretrained(model_repo)
     except Exception as e:
         if 'distilbert' in model_repo:
-            tok = DistilBertTokenizer('models/distilbert-20news-0/vocab.txt')
+            tok = DistilBertTokenizer('models/distilbert-4/vocab.txt')
         else:
-            tok = BertTokenizer('models/bert-20news-0/vocab.txt')
+            tok = BertTokenizer('models/bert-4/vocab.txt')
     clf = pipeline(task='text-classification',
-                        model= model_repo,
-                        tokenizer = tok)
+                        model=model_repo,
+                        tokenizer=tok)
     return clf
 
 
 def explain_all(test_data, exp_model, subsplit_size=500):
     df = pd.DataFrame(columns=['label_pred', 'score', 'tokens', 'attributions'])
-    for i, d in enumerate(test_data):
+    for i, d in test_data.iterrows():
         try:
-            a, pred = exp_model.explain(d['text'])
+            a, pred = exp_model.explain(d['truncated'])
             new_row = pd.DataFrame({
                 'label_pred': pred[0]['label'],
                 'score': pred[0]['score'],
@@ -38,12 +38,10 @@ def explain_all(test_data, exp_model, subsplit_size=500):
                 df = df.append([None, None, None, None], ignore_index=True)
                 none_row = True
         if i-1 % subsplit_size == 0:  # export split to dataframe
-            df.to_csv(f'outputs/{exp_model.model}_attributions_{int(i/subsplit_size)}.csv')
+            df.to_csv(f'outputs/{exp_model.model}/{exp_model.model}_attributions_{int(i/subsplit_size)}.csv')
             df = pd.DataFrame(columns=['label_pred', 'score', 'tokens', 'attributions'])
 
-
-
-if __name__ == '__main__':
+def demo():
     example1 = {
         'text': 'I am a little confused on all of the models of the 88-89 bonnevilles.\nI have heard of the LE SE LSE SSE SSEI. Could someone tell me the\ndifferences are far as features or performance. I am also curious to\nknow what the book value is for prefereably the 89 model. And how much\nless than book value can you usually get them for. In other words how\nmuch are they in demand this time of year. I have heard that the mid-spring\nearly summer is the best time to buy.',
         'label': 7,
@@ -56,9 +54,22 @@ if __name__ == '__main__':
         }
     device = 'cpu'
     clf = setup('models/distilbert-2/')
-    exp_model_bert = explainer.ExplainableTransformerPipeline(clf, device, 'output', algorithms=['lig', 'lrp'], model='distilbert')
+    exp_model_bert = explainer.ExplainableTransformerPipeline(clf, device, 'output', algorithms=['lig'], model='distilbert')
     print(exp_model_bert.explain(example1['text']))
     print(exp_model_bert.explain(example2['text']))
-    #data_test = load_dataset("SetFit/20_newsgroups", split='test')
-    #explain_all(data_test, exp_model_bert)
+
+
+if __name__ == '__main__':
+    data_path = '../dataset/data_test.csv'
+    data_df = pd.read_csv(data_path)
+    device = 'cpu'
+    dist = True
+    if dist:
+        clf = setup('models/distilbert-4/')
+        exp_model_distilbert = explainer.ExplainableTransformerPipeline(clf, device, 'output/distilbert', algorithms=['lig'], model='distilbert')
+        explain_all(data_df, exp_model_distilbert)
+    else:
+        clf = setup('models/bert-4/')
+        exp_model_bert = explainer.ExplainableTransformerPipeline(clf, device, 'output/bert', algorithms=['lig'], model='bert')
+        explain_all(data_df, exp_model_bert)
 
