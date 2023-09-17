@@ -37,7 +37,7 @@ def explain_all(test_data, exp_model, subsplit_size=500):
             if not none_row:
                 df = df.append([None, None, None, None], ignore_index=True)
                 none_row = True
-        if i-1 % subsplit_size == 0:  # export split to dataframe
+        if i+1 % subsplit_size == 0:  # export split to dataframe
             df.to_csv(f'outputs/{exp_model.model}/{exp_model.model}_attributions_{int(i/subsplit_size)}.csv')
             df = pd.DataFrame(columns=['label_pred', 'score', 'tokens', 'attributions'])
 
@@ -60,7 +60,7 @@ def demo():
 
 
 if __name__ == '__main__':
-    data_path = '../dataset/data_test.csv'
+    data_path = 'dataset/data_test.csv'
     data_df = pd.read_csv(data_path)
     device = 'cpu'
     dist = True

@@ -46,7 +46,7 @@ class ExplainableTransformerPipeline():
         prediction = self.__pipeline.predict(text)
         inputs = self.generate_inputs(text)
         baseline = self.generate_baseline(sequence_len=inputs.shape[1])
-        print(inputs, baseline)
+        #print(inputs, baseline)
         
         if 'lig' in self.algorithms:
             lig = LayerIntegratedGradients(self.forward_func,
