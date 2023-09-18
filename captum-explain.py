@@ -21,8 +21,8 @@ def setup(model_repo):
 def explain_all(test_data, exp_model, subsplit_size=500):
     df = pd.DataFrame(columns=['label_pred', 'score', 'tokens', 'attributions'])
     for i, d in test_data.iterrows():
-        if i < 7000:
-            continue
+        if i > 1000:
+            break
         try:
             a, pred = exp_model.explain(d['truncated'])
             new_row = pd.DataFrame({
@@ -67,7 +67,7 @@ if __name__ == '__main__':
     data_path = 'dataset/data_test.csv'
     data_df = pd.read_csv(data_path)
     device = 'cpu'
-    dist = True
+    dist = False
     if dist:
         clf = setup('models/distilbert-4/')
         exp_model_distilbert = explainer.ExplainableTransformerPipeline(clf, device, 'output/distilbert', algorithms=['lig'], model='distilbert')
