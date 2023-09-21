@@ -22,8 +22,10 @@ for d in data["test"]:
 # preprocessing
 tokenizer = AutoTokenizer.from_pretrained("bert-base-uncased")
 
+
 def preprocess_function(examples):
     return tokenizer(examples["text"], truncation=True)
+
 
 tokenized_data = data.map(preprocess_function, batched=True)
 data_collator = DataCollatorWithPadding(tokenizer=tokenizer)
@@ -31,10 +33,12 @@ data_collator = DataCollatorWithPadding(tokenizer=tokenizer)
 # define metrics
 accuracy = evaluate.load("accuracy")
 
+
 def compute_metrics(eval_pred, metric=accuracy):
     predictions, labels = eval_pred
     predictions = np.argmax(predictions, axis=1)
     return metric.compute(predictions=predictions, references=labels)
+
 
 # define model, start training
 model = AutoModelForSequenceClassification.from_pretrained(

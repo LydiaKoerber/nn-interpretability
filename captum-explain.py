@@ -1,4 +1,9 @@
-from transformers import pipeline, AutoTokenizer, BertTokenizer, DistilBertTokenizer
+from transformers import (
+    AutoTokenizer,
+    BertTokenizer,
+    DistilBertTokenizer,
+    pipeline
+    )
 from datasets import load_dataset
 import pandas as pd
 import explainer
@@ -19,7 +24,8 @@ def setup(model_repo):
 
 
 def explain_all(test_data, exp_model, subsplit_size=500):
-    df = pd.DataFrame(columns=['label_pred', 'score', 'tokens', 'attributions'])
+    df = pd.DataFrame(columns=['label_pred', 'score', 'tokens',
+                               'attributions'])
     for i, d in test_data.iterrows():
         if i > 1000:
             break
@@ -35,14 +41,17 @@ def explain_all(test_data, exp_model, subsplit_size=500):
             none_row = False
         except Exception as e:
             print(i, e)
-            # avoid several rows for one index if several error messages for one instance
+            # avoid several rows for one index if several error messages
             if not none_row:
                 df = df.append([None, None, None, None], ignore_index=True)
                 none_row = True
         if (i+1) % subsplit_size == 0:  # export split to dataframe
-            df.to_csv(f'outputs/{exp_model.model}/{exp_model.model}_attributions_{int(i/subsplit_size)}.csv')
-            df = pd.DataFrame(columns=['label_pred', 'score', 'tokens', 'attributions'])
-    df.to_csv(f'outputs/{exp_model.model}/{exp_model.model}_attributions_{int(i/subsplit_size)}.csv')
+            df.to_csv(f'outputs/{exp_model.model}/{
+                exp_model.model}_attributions_{int(i/subsplit_size)}.csv')
+            df = pd.DataFrame(columns=['label_pred', 'score', 'tokens',
+                                       'attributions'])
+    df.to_csv(f'outputs/{exp_model.model}/{exp_model.model}_attributions_{
+        int(i/subsplit_size)}.csv')
 
 
 def demo():
@@ -58,7 +67,11 @@ def demo():
         }
     device = 'cpu'
     clf = setup('models/distilbert-2/')
-    exp_model_bert = explainer.ExplainableTransformerPipeline(clf, device, 'output', algorithms=['lig'], model='distilbert')
+    exp_model_bert = explainer.ExplainableTransformerPipeline(clf,
+                                                              device,
+                                                              'output',
+                                                              algorithms=['lig'],
+                                                              model='distilbert')
     print(exp_model_bert.explain(example1['text']))
     print(exp_model_bert.explain(example2['text']))
 
@@ -69,11 +82,21 @@ if __name__ == '__main__':
     device = 'cpu'
     dist = False
     if dist:
+        # distilbert setup
         clf = setup('models/distilbert-4/')
-        exp_model_distilbert = explainer.ExplainableTransformerPipeline(clf, device, 'output/distilbert', algorithms=['lig'], model='distilbert')
+        exp_model_distilbert = explainer.ExplainableTransformerPipeline(clf,
+                                                                        device,
+                                                                        'output/distilbert',
+                                                                        algorithms=['lig'],
+                                                                        model='distilbert')
         explain_all(data_df, exp_model_distilbert)
     else:
+        # bert setup
         clf = setup('models/bert-4/')
-        exp_model_bert = explainer.ExplainableTransformerPipeline(clf, device, 'output/bert', algorithms=['lig'], model='bert')
+        exp_model_bert = explainer.ExplainableTransformerPipeline(clf,
+                                                                  device,
+                                                                  'output/bert',
+                                                                  algorithms=['lig'],
+                                                                  model='bert')
         explain_all(data_df, exp_model_bert)
 

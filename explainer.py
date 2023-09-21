@@ -1,7 +1,7 @@
 import torch
 import pandas as pd
 
-from torch import tensor 
+from torch import tensor
 from transformers import DistilBertTokenizer, BertTokenizer
 from transformers.pipelines import TextClassificationPipeline
 from captum.attr import LayerIntegratedGradients
@@ -30,10 +30,13 @@ class ExplainableTransformerPipeline():
         model (str): The name or identifier of the transformer model.
 
     Attributes:
-        __pipeline (TextClassificationPipeline): The Huggingface text classification pipeline.
-        __device (str): The device on which interpretation algorithms are executed.
+        __pipeline (TextClassificationPipeline): The Huggingface text
+            classification pipeline.
+        __device (str): The device on which interpretation algorithms are
+            executed.
         output_path (str): The storage path for interpretation results.
-        algorithms (list): The list of Captum interpretability algorithms to be applied.
+        algorithms (list): The list of Captum interpretability algorithms to
+            be applied.
         model (str): The name or identifier of the transformer model in use.
     """
     
@@ -62,7 +65,7 @@ class ExplainableTransformerPipeline():
         if output:
             plt.savefig(
                 f'{self.output_path}/viz-{index}.png',
-                        bbox_inches = 'tight')
+                        bbox_inches='tight')
 
     def explain(self, text: str, visualize: bool = False, index: int = 0) \
         -> tuple:
