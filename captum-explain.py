@@ -23,14 +23,16 @@ def setup(model_repo):
     return clf
 
 
-def explain_all(test_data, exp_model, subsplit_size=500):
+def explain_all(test_data, exp_model, target='pred', subsplit_size=500):
     df = pd.DataFrame(columns=['label_pred', 'score', 'tokens',
                                'attributions'])
     for i, d in test_data.iterrows():
-        if i > 1000:
-            break
         try:
-            a, pred = exp_model.explain(d['truncated'])
+            if target == 'gold':  # attribute to gold label
+                a, pred = exp_model.explain(d['truncated'],
+                                            target=int(d['target']))
+            elif target == 'pred':  # default: attribute to predicted label
+                a, pred = exp_model.explain(d['truncated'], target='pred')
             new_row = pd.DataFrame({
                 'label_pred': pred[0]['label'],
                 'score': pred[0]['score'],
@@ -50,8 +52,7 @@ def explain_all(test_data, exp_model, subsplit_size=500):
                 exp_model.model}_attributions_{int(i/subsplit_size)}.csv')
             df = pd.DataFrame(columns=['label_pred', 'score', 'tokens',
                                        'attributions'])
-    df.to_csv(f'outputs/{exp_model.model}/{exp_model.model}_attributions_{
-        int(i/subsplit_size)}.csv')
+    df.to_csv(f'outputs/{exp_model.model}/{exp_model.model}_attributions_{target}_{int(i/subsplit_size)}.csv')
 
 
 def demo():
@@ -80,7 +81,8 @@ if __name__ == '__main__':
     data_path = 'dataset/data_test.csv'
     data_df = pd.read_csv(data_path)
     device = 'cpu'
-    dist = False
+    dist = True
+    target = 'gold'
     if dist:
         # distilbert setup
         clf = setup('models/distilbert-4/')
@@ -89,7 +91,7 @@ if __name__ == '__main__':
                                                                         'output/distilbert',
                                                                         algorithms=['lig'],
                                                                         model='distilbert')
-        explain_all(data_df, exp_model_distilbert)
+        explain_all(data_df, exp_model_distilbert, target=target)
     else:
         # bert setup
         clf = setup('models/bert-4/')

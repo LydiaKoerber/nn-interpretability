@@ -67,7 +67,8 @@ class ExplainableTransformerPipeline():
                 f'{self.output_path}/viz-{index}.png',
                         bbox_inches='tight')
 
-    def explain(self, text: str, visualize: bool = False, index: int = 0) \
+    def explain(self, text: str, visualize: bool = False, index: int = 0,
+                target='pred') \
         -> tuple:
         """pass a text through a model and calculate attributions"""
         prediction = self.__pipeline.predict(text)
@@ -79,11 +80,19 @@ class ExplainableTransformerPipeline():
             lig = LayerIntegratedGradients(self.forward_func,
                                            getattr(self.__pipeline.model,
                                                    self.model).embeddings)
-
+            if target == 'pred':
+                attribute_target = self.__pipeline.model\
+                                            .config.label2id[prediction[0]
+                                                             ['label']]
+            else:  # target is the gold label
+                if type(target) == str:  # label string given
+                    attribute_target = self.__pipeline.model\
+                                                .config.label2id[target]
+                else:  # label ID given
+                    attribute_target = target
             attributes, delta = lig.attribute(inputs=inputs,
                                     baselines=baseline,
-                                        target=self.__pipeline.model\
-                                            .config.label2id[prediction[0]['label']],
+                                        target=attribute_target,
                                         return_convergence_delta=True)
 
             attr_sum = attributes.sum(-1) 
@@ -98,7 +107,8 @@ class ExplainableTransformerPipeline():
     def generate_inputs(self, text: str) -> tensor:
         """generate input as vector of input IDs"""
         return torch.tensor(self.__pipeline.tokenizer.encode(text,
-                                                             add_special_tokens=False),
+                                                             add_special_tokens
+                                                             =False),
                             device=self.__device).unsqueeze(0)
 
     def generate_baseline(self, sequence_len: int) -> tensor:
