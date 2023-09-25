@@ -48,8 +48,7 @@ def explain_all(test_data, exp_model, target='pred', subsplit_size=500):
                 df = df.append([None, None, None, None], ignore_index=True)
                 none_row = True
         if (i+1) % subsplit_size == 0:  # export split to dataframe
-            df.to_csv(f'outputs/{exp_model.model}/{
-                exp_model.model}_attributions_{int(i/subsplit_size)}.csv')
+            df.to_csv(f'outputs/{exp_model.model}/{exp_model.model}_attributions_{target}_{int(i/subsplit_size)}.csv')
             df = pd.DataFrame(columns=['label_pred', 'score', 'tokens',
                                        'attributions'])
     df.to_csv(f'outputs/{exp_model.model}/{exp_model.model}_attributions_{target}_{int(i/subsplit_size)}.csv')
