@@ -1,12 +1,10 @@
-import torch
-import pandas as pd
-
-from torch import tensor
-from transformers import DistilBertTokenizer, BertTokenizer
-from transformers.pipelines import TextClassificationPipeline
-from captum.attr import LayerIntegratedGradients
-
 import matplotlib.pyplot as plt
+
+import pandas as pd
+import torch
+from captum.attr import LayerIntegratedGradients
+from transformers.pipelines import TextClassificationPipeline
+from torch import tensor
 
 
 class ExplainableTransformerPipeline():
@@ -39,7 +37,7 @@ class ExplainableTransformerPipeline():
             be applied.
         model (str): The name or identifier of the transformer model in use.
     """
-    
+
     def __init__(self, pipeline: TextClassificationPipeline,
                  device: str,
                  output_path: str,
@@ -50,7 +48,7 @@ class ExplainableTransformerPipeline():
         self.output_path = output_path
         self.algorithms = algorithms
         self.model = model
-    
+
     def forward_func(self, inputs: tensor, position: int = 0):
         """prediction method of the pipeline"""
         pred = self.__pipeline.model(inputs,
@@ -68,8 +66,7 @@ class ExplainableTransformerPipeline():
                         bbox_inches='tight')
 
     def explain(self, text: str, visualize: bool = False, index: int = 0,
-                target='pred') \
-        -> tuple:
+                target='pred') -> tuple:
         """pass a text through a model and calculate attributions"""
         prediction = self.__pipeline.predict(text)
         inputs = self.generate_inputs(text)
@@ -91,12 +88,12 @@ class ExplainableTransformerPipeline():
                 else:  # label ID given
                     attribute_target = target
             attributes, delta = lig.attribute(inputs=inputs,
-                                    baselines=baseline,
-                                        target=attribute_target,
-                                        return_convergence_delta=True)
+                                                baselines=baseline,
+                                                target=attribute_target,
+                                                return_convergence_delta=True)
 
-            attr_sum = attributes.sum(-1) 
-            attr = attr_sum / torch.norm(attr_sum) 
+            attr_sum = attributes.sum(-1)
+            attr = attr_sum / torch.norm(attr_sum)
             a = pd.Series(attr.numpy()[0],
                             index=self.__pipeline.tokenizer.convert_ids_to_tokens(
                                 inputs.detach().numpy()[0]))
@@ -112,7 +109,7 @@ class ExplainableTransformerPipeline():
                             device=self.__device).unsqueeze(0)
 
     def generate_baseline(self, sequence_len: int) -> tensor:
-        """generate a baseline vector of PAD token IDs"""        
+        """generate a baseline vector of PAD token IDs"""
         return torch.tensor([self.__pipeline.tokenizer.cls_token_id] +
                             ([self.__pipeline.tokenizer.pad_token_id] *
                             (sequence_len - 2)) +
