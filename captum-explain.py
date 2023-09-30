@@ -104,4 +104,3 @@ if __name__ == '__main__':
                                                     algorithms=['lig'],
                                                     model='bert')
         explain_all(data_df, exp_model_bert)
-

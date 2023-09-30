@@ -2,9 +2,6 @@ accelerate #--upgrade
 captum
 datasets
 evaluate
-imgkit
-keras-bert
-keras-rectified-adam
 pandas
 scikit-learn
 seaborn
