@@ -10,6 +10,8 @@ It investigates and compares interpretability measures for Support Vector Machin
 
 
 ### SVM
+- tune model and vectorizer parameters: `svm-parameter-tuning.py`
+- train/test model and generate coefficient outputs: `svm.py`
 
 ### DistilBERT Attributions
 - fine-tune the model yourself: `models/model.py`
@@ -20,7 +22,7 @@ It investigates and compares interpretability measures for Support Vector Machin
 Analyses are conducted in 3 different Notebooks:
 - `analysis-distilbert.ipynb` contains the analyses of the DistilBERT attributions
 - `analysis-predictions.ipynb` compares the scores for the test set instances (SVM coefficients in `outputs/coefs_test.csv` and DistilBERT attributions in `outputs/distilbert_attributions.csv`), creates some visualizations of specific instances in `outputs/viz`
-- `analysis-vocabs.ipynb`
+- `analysis-vocabs.ipynb` conpares the scores over the general vocabulary (SVM coefficients in `outputs/vocab_coef_svm.csv` and DistilBERT attributions in `outputs/vocab_attr_dist4_gold.csv` and `outputs/vocab_attr_dist4_pred.csv`
 
 ## Authors
 Lydia Körber and Lisanne Rüh
