@@ -4,12 +4,12 @@ from transformers import (
     DistilBertTokenizer,
     pipeline
     )
-from datasets import load_dataset
 import pandas as pd
 import explainer
 
 
 def setup(model_repo):
+    """set up a text classification pipeline with BERT or DistilBERT"""
     try:
         tok = AutoTokenizer.from_pretrained(model_repo)
     except Exception as e:
@@ -24,6 +24,7 @@ def setup(model_repo):
 
 
 def explain_all(test_data, exp_model, target='pred', subsplit_size=500):
+    """run the explanation algorithm over a whole test data set"""
     df = pd.DataFrame(columns=['label_pred', 'score', 'tokens',
                                'attributions'])
     for i, d in test_data.iterrows():
@@ -55,6 +56,7 @@ def explain_all(test_data, exp_model, target='pred', subsplit_size=500):
 
 
 def demo():
+    """short demo of the explainable transformer pipeline with distilbert"""
     example1 = {
         'text': 'I am a little confused on all of the models of the 88-89 bonnevilles.\nI have heard of the LE SE LSE SSE SSEI. Could someone tell me the\ndifferences are far as features or performance. I am also curious to\nknow what the book value is for prefereably the 89 model. And how much\nless than book value can you usually get them for. In other words how\nmuch are they in demand this time of year. I have heard that the mid-spring\nearly summer is the best time to buy.',
         'label': 7,
@@ -66,7 +68,7 @@ def demo():
         'label_text': 'talk.politics.mideast'
         }
     device = 'cpu'
-    clf = setup('models/distilbert-2/')
+    clf = setup('models/distilbert-4/')
     exp_model_bert = explainer.ExplainableTransformerPipeline(clf,
                                                               device,
                                                               'output',
@@ -85,19 +87,21 @@ if __name__ == '__main__':
     if dist:
         # distilbert setup
         clf = setup('models/distilbert-4/')
-        exp_model_distilbert = explainer.ExplainableTransformerPipeline(clf,
-                                                                        device,
-                                                                        'output/distilbert',
-                                                                        algorithms=['lig'],
-                                                                        model='distilbert')
+        exp_model_distilbert = \
+            explainer.ExplainableTransformerPipeline(clf,
+                                                    device,
+                                                    'output/distilbert',
+                                                    algorithms=['lig'],
+                                                    model='distilbert')
         explain_all(data_df, exp_model_distilbert, target=target)
     else:
         # bert setup
         clf = setup('models/bert-4/')
-        exp_model_bert = explainer.ExplainableTransformerPipeline(clf,
-                                                                  device,
-                                                                  'output/bert',
-                                                                  algorithms=['lig'],
-                                                                  model='bert')
+        exp_model_bert = \
+            explainer.ExplainableTransformerPipeline(clf,
+                                                    device,
+                                                    'output/bert',
+                                                    algorithms=['lig'],
+                                                    model='bert')
         explain_all(data_df, exp_model_bert)
 

@@ -20,7 +20,8 @@ for d in data["test"]:
     label2id[d['label_text']] = d['label']
 
 # preprocessing
-tokenizer = AutoTokenizer.from_pretrained("bert-base-uncased")
+tokenizer = AutoTokenizer.from_pretrained("distilbert-base-uncased")
+# for BERT fine-tuning: bert-base-uncased
 
 
 def preprocess_function(examples):
@@ -42,13 +43,13 @@ def compute_metrics(eval_pred, metric=accuracy):
 
 # define model, start training
 model = AutoModelForSequenceClassification.from_pretrained(
-    "bert-base-uncased",
+    "distilbert-base-uncased",  # bert-base-uncased
     num_labels=20,
     id2label=id2label,
     label2id=label2id)
 
 training_args = TrainingArguments(
-    output_dir="bert-4",
+    output_dir="distilbert-4",  # bert-4
     learning_rate=2e-5,
     per_device_train_batch_size=16,
     per_device_eval_batch_size=16,
